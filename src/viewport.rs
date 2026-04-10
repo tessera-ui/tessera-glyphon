@@ -1,13 +1,15 @@
-use crate::{Cache, Params, Resolution};
 use std::{mem, slice};
+
 use wgpu::{BindGroup, Buffer, BufferDescriptor, BufferUsages, Device, Queue};
 
-/// Controls the visible area of all text for a given renderer. Any text outside of the visible
-/// area will be clipped.
+use crate::{Cache, Params, Resolution};
+
+/// Controls the visible area of all text for a given renderer. Any text outside
+/// of the visible area will be clipped.
 ///
-/// Many projects will only ever need a single `Viewport`, but it is possible to create multiple
-/// `Viewport`s if you want to render text to specific areas within a window (without having to)
-/// bound each `TextArea`).
+/// Many projects will only ever need a single `Viewport`, but it is possible to
+/// create multiple `Viewport`s if you want to render text to specific areas
+/// within a window (without having to) bound each `TextArea`).
 #[derive(Debug)]
 pub struct Viewport {
     params: Params,

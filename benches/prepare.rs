@@ -1,6 +1,7 @@
 use std::hint;
+
 use cosmic_text::{Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use glyphon::{
     Cache, ColorMode, Resolution, TextArea, TextAtlas, TextBounds, TextRenderer, Viewport, Weight,
 };
@@ -97,19 +98,20 @@ fn run_bench(ctx: &mut Criterion) {
                     })
                     .collect();
 
-                hint::black_box(
-                    text_renderer
-                        .prepare(
+                text_renderer
+                    .prepare(
+                        glyphon::PrepareContext::new(
                             &state.device,
                             &state.queue,
                             &mut font_system,
                             &mut atlas,
                             &viewport,
-                            text_areas,
                             &mut swash_cache,
-                        )
-                        .unwrap(),
-                );
+                        ),
+                        text_areas,
+                    )
+                    .unwrap();
+                hint::black_box(());
 
                 atlas.trim();
             })

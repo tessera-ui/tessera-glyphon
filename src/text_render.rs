@@ -1,23 +1,62 @@
-use crate::{
-    custom_glyph::CustomGlyphCacheKey, ColorMode, ContentType, FontSystem, GlyphDetails,
-    GlyphToRender, GpuCacheStatus, PrepareError, RasterizeCustomGlyphRequest,
-    RasterizedCustomGlyph, RenderError, State, SwashCache, SwashContent, TextArea, TextAtlas,
-    Viewport,
-};
-use cosmic_text::{Color, SubpixelBin};
 use std::slice;
+
+use cosmic_text::{Color, SubpixelBin};
 use wgpu::{
-    Buffer, BufferDescriptor, BufferUsages, DepthStencilState, Device, Extent3d, MultisampleState,
-    Origin3d, Queue, RenderPass, RenderPipeline, TexelCopyBufferLayout, TexelCopyTextureInfo,
-    TextureAspect, COPY_BUFFER_ALIGNMENT,
+    Buffer, BufferDescriptor, BufferUsages, COPY_BUFFER_ALIGNMENT, DepthStencilState, Device,
+    Extent3d, MultisampleState, Origin3d, Queue, RenderPass, RenderPipeline, TexelCopyBufferLayout,
+    TexelCopyTextureInfo, TextureAspect,
 };
 
-/// A text renderer that uses cached glyphs to render text into an existing render pass.
+use crate::{
+    ColorMode, ContentType, FontSystem, GlyphDetails, GlyphToRender, GpuCacheStatus, PrepareError,
+    RasterizeCustomGlyphRequest, RasterizedCustomGlyph, RenderError, State, SwashCache,
+    SwashContent, TextArea, TextAtlas, Viewport, custom_glyph::CustomGlyphCacheKey,
+};
+
+/// A text renderer that uses cached glyphs to render text into an existing
+/// render pass.
 pub struct TextRenderer {
     vertex_buffer: Buffer,
     vertex_buffer_size: u64,
     pipeline: RenderPipeline,
     glyph_vertices: Vec<GlyphToRender>,
+}
+
+/// Shared state required to prepare text areas for a frame.
+pub struct PrepareContext<'a> {
+    /// WGPU device used for buffer growth.
+    pub device: &'a Device,
+    /// WGPU queue used for uploads.
+    pub queue: &'a Queue,
+    /// Font system used for shaping and glyph lookup.
+    pub font_system: &'a mut FontSystem,
+    /// Text atlas used to cache rasterized glyphs.
+    pub atlas: &'a mut TextAtlas,
+    /// Viewport describing the target resolution.
+    pub viewport: &'a Viewport,
+    /// Swash cache used to rasterize and cache glyph images.
+    pub cache: &'a mut SwashCache,
+}
+
+impl<'a> PrepareContext<'a> {
+    /// Creates a new prepare context.
+    pub fn new(
+        device: &'a Device,
+        queue: &'a Queue,
+        font_system: &'a mut FontSystem,
+        atlas: &'a mut TextAtlas,
+        viewport: &'a Viewport,
+        cache: &'a mut SwashCache,
+    ) -> Self {
+        Self {
+            device,
+            queue,
+            font_system,
+            atlas,
+            viewport,
+            cache,
+        }
+    }
 }
 
 impl TextRenderer {
@@ -49,93 +88,52 @@ impl TextRenderer {
     /// Prepares all of the provided text areas for rendering.
     pub fn prepare<'a>(
         &mut self,
-        device: &Device,
-        queue: &Queue,
-        font_system: &mut FontSystem,
-        atlas: &mut TextAtlas,
-        viewport: &Viewport,
+        context: PrepareContext<'_>,
         text_areas: impl IntoIterator<Item = TextArea<'a>>,
-        cache: &mut SwashCache,
     ) -> Result<(), PrepareError> {
-        self.prepare_with_depth_and_custom(
-            device,
-            queue,
-            font_system,
-            atlas,
-            viewport,
-            text_areas,
-            cache,
-            zero_depth,
-            |_| None,
-        )
+        self.prepare_with_depth_and_custom(context, text_areas, zero_depth, |_| None)
     }
 
     /// Prepares all of the provided text areas for rendering.
     pub fn prepare_with_depth<'a>(
         &mut self,
-        device: &Device,
-        queue: &Queue,
-        font_system: &mut FontSystem,
-        atlas: &mut TextAtlas,
-        viewport: &Viewport,
+        context: PrepareContext<'_>,
         text_areas: impl IntoIterator<Item = TextArea<'a>>,
-        cache: &mut SwashCache,
         metadata_to_depth: impl FnMut(usize) -> f32,
     ) -> Result<(), PrepareError> {
-        self.prepare_with_depth_and_custom(
-            device,
-            queue,
-            font_system,
-            atlas,
-            viewport,
-            text_areas,
-            cache,
-            metadata_to_depth,
-            |_| None,
-        )
+        self.prepare_with_depth_and_custom(context, text_areas, metadata_to_depth, |_| None)
     }
 
     /// Prepares all of the provided text areas for rendering.
     pub fn prepare_with_custom<'a>(
         &mut self,
-        device: &Device,
-        queue: &Queue,
-        font_system: &mut FontSystem,
-        atlas: &mut TextAtlas,
-        viewport: &Viewport,
+        context: PrepareContext<'_>,
         text_areas: impl IntoIterator<Item = TextArea<'a>>,
-        cache: &mut SwashCache,
         rasterize_custom_glyph: impl FnMut(RasterizeCustomGlyphRequest) -> Option<RasterizedCustomGlyph>,
     ) -> Result<(), PrepareError> {
-        self.prepare_with_depth_and_custom(
-            device,
-            queue,
-            font_system,
-            atlas,
-            viewport,
-            text_areas,
-            cache,
-            zero_depth,
-            rasterize_custom_glyph,
-        )
+        self.prepare_with_depth_and_custom(context, text_areas, zero_depth, rasterize_custom_glyph)
     }
 
     /// Prepares all of the provided text areas for rendering.
     pub fn prepare_with_depth_and_custom<'a>(
         &mut self,
-        device: &Device,
-        queue: &Queue,
-        font_system: &mut FontSystem,
-        atlas: &mut TextAtlas,
-        viewport: &Viewport,
+        context: PrepareContext<'_>,
         text_areas: impl IntoIterator<Item = TextArea<'a>>,
-        cache: &mut SwashCache,
         mut metadata_to_depth: impl FnMut(usize) -> f32,
         mut rasterize_custom_glyph: impl FnMut(
             RasterizeCustomGlyphRequest,
         ) -> Option<RasterizedCustomGlyph>,
     ) -> Result<(), PrepareError> {
         self.glyph_vertices.clear();
+
+        let PrepareContext {
+            device,
+            queue,
+            font_system,
+            atlas,
+            viewport,
+            cache,
+        } = context;
 
         let state = State { device, queue };
         let mut system = GlyphSystem {

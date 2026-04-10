@@ -1,5 +1,6 @@
-use crate::Color;
 use cosmic_text::SubpixelBin;
+
+use crate::Color;
 
 pub type CustomGlyphId = u16;
 
@@ -22,8 +23,8 @@ pub struct CustomGlyph {
     /// Set to `None` to use [`crate::TextArea::default_color`].
     pub color: Option<Color>,
     /// If `true`, then this glyph will be snapped to the nearest whole physical
-    /// pixel and the resulting `SubpixelBin`'s in `RasterizationRequest` will always
-    /// be `Zero` (useful for images and other large glyphs).
+    /// pixel and the resulting `SubpixelBin`'s in `RasterizationRequest` will
+    /// always be `Zero` (useful for images and other large glyphs).
     pub snap_to_physical_pixel: bool,
     /// Additional metadata about the glyph
     pub metadata: usize,
@@ -69,7 +70,11 @@ impl RasterizedCustomGlyph {
         expected_type: Option<ContentType>,
     ) {
         if let Some(expected_type) = expected_type {
-            assert_eq!(self.content_type, expected_type, "Custom glyph rasterizer must always produce the same content type for a given input. Expected {:?}, got {:?}. Input: {:?}", expected_type, self.content_type, input);
+            assert_eq!(
+                self.content_type, expected_type,
+                "Custom glyph rasterizer must always produce the same content type for a given input. Expected {:?}, got {:?}. Input: {:?}",
+                expected_type, self.content_type, input
+            );
         }
 
         assert_eq!(

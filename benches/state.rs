@@ -1,10 +1,15 @@
-use wgpu::{BackendOptions, Dx12BackendOptions};
-
 use pollster::block_on;
+use wgpu::{BackendOptions, Dx12BackendOptions};
 
 pub struct State {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
+}
+
+impl Default for State {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl State {

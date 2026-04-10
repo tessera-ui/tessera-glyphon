@@ -1,4 +1,3 @@
-use crate::{GlyphToRender, Params};
 use std::{
     borrow::Cow,
     mem,
@@ -6,6 +5,7 @@ use std::{
     ops::Deref,
     sync::{Arc, Mutex},
 };
+
 use wgpu::{
     BindGroup, BindGroupDescriptor, BindGroupEntry, BindGroupLayout, BindGroupLayoutEntry,
     BindingResource, BindingType, BlendState, Buffer, BufferBindingType, ColorTargetState,
@@ -17,8 +17,10 @@ use wgpu::{
     VertexFormat, VertexState,
 };
 
-/// A cache to share common resources (e.g., pipelines, layouts, shaders) between multiple text
-/// renderers.
+use crate::{GlyphToRender, Params};
+
+/// A cache to share common resources (e.g., pipelines, layouts, shaders)
+/// between multiple text renderers.
 #[derive(Debug, Clone)]
 pub struct Cache(Arc<Inner>);
 
