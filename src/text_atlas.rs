@@ -1,6 +1,6 @@
 use std::{collections::HashSet, hash::BuildHasherDefault};
 
-use etagere::{Allocation, BucketedAtlasAllocator, size2};
+use etagere::{size2, Allocation, BucketedAtlasAllocator};
 use lru::LruCache;
 use rustc_hash::FxHasher;
 use wgpu::{
@@ -11,8 +11,8 @@ use wgpu::{
 };
 
 use crate::{
-    Cache, ContentType, FontSystem, GlyphDetails, GpuCacheStatus, RasterizeCustomGlyphRequest,
-    RasterizedCustomGlyph, State, SwashCache, text_render::GlyphonCacheKey,
+    text_render::GlyphonCacheKey, Cache, ContentType, FontSystem, GlyphDetails, GpuCacheStatus,
+    RasterizeCustomGlyphRequest, RasterizedCustomGlyph, State, SwashCache,
 };
 
 type Hasher = BuildHasherDefault<FxHasher>;

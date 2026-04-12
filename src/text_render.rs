@@ -2,15 +2,16 @@ use std::slice;
 
 use cosmic_text::{Color, SubpixelBin};
 use wgpu::{
-    Buffer, BufferDescriptor, BufferUsages, COPY_BUFFER_ALIGNMENT, DepthStencilState, Device,
-    Extent3d, MultisampleState, Origin3d, Queue, RenderPass, RenderPipeline, TexelCopyBufferLayout,
-    TexelCopyTextureInfo, TextureAspect,
+    Buffer, BufferDescriptor, BufferUsages, DepthStencilState, Device, Extent3d, MultisampleState,
+    Origin3d, Queue, RenderPass, RenderPipeline, TexelCopyBufferLayout, TexelCopyTextureInfo,
+    TextureAspect, COPY_BUFFER_ALIGNMENT,
 };
 
 use crate::{
-    ColorMode, ContentType, FontSystem, GlyphDetails, GlyphToRender, GpuCacheStatus, PrepareError,
-    RasterizeCustomGlyphRequest, RasterizedCustomGlyph, RenderError, State, SwashCache,
-    SwashContent, TextArea, TextAtlas, Viewport, custom_glyph::CustomGlyphCacheKey,
+    custom_glyph::CustomGlyphCacheKey, ColorMode, ContentType, FontSystem, GlyphDetails,
+    GlyphToRender, GpuCacheStatus, PrepareError, RasterizeCustomGlyphRequest,
+    RasterizedCustomGlyph, RenderError, State, SwashCache, SwashContent, TextArea, TextAtlas,
+    Viewport,
 };
 
 /// A text renderer that uses cached glyphs to render text into an existing

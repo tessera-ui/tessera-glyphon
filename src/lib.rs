@@ -26,11 +26,11 @@ pub use viewport::Viewport;
 
 #[doc(no_inline)]
 pub use cosmic_text::{
-    self, Action, Affinity, Attrs, AttrsList, AttrsOwned, Buffer, BufferLine, CacheKey, Color,
-    Command, Cursor, Edit, Editor, Family, FamilyOwned, Font, FontSystem, LayoutCursor,
+    self, fontdb, Action, Affinity, Attrs, AttrsList, AttrsOwned, Buffer, BufferLine, CacheKey,
+    Color, Command, Cursor, Edit, Editor, Family, FamilyOwned, Font, FontSystem, LayoutCursor,
     LayoutGlyph, LayoutLine, LayoutRun, LayoutRunIter, Metrics, ShapeGlyph, ShapeLine, ShapeSpan,
     ShapeWord, Shaping, Stretch, Style, SubpixelBin, SwashCache, SwashContent, SwashImage, Weight,
-    Wrap, fontdb,
+    Wrap,
 };
 
 // Re-export all top-level types from `cosmic-text` for convenience.
