@@ -3,7 +3,6 @@ name = "tessera-glyphon"
 description = "Fast, simple 2D text rendering for wgpu"
 version = "0.10.0"
 edition = "2021"
-homepage = "https://github.com/tessera-ui/tessera-glyphon"
 repository = "https://github.com/tessera-ui/tessera-glyphon"
 license = "MIT OR Apache-2.0 OR Zlib"
 
