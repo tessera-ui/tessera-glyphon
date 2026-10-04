@@ -1,10 +1,9 @@
-use std::sync::Arc;
-
 use glyphon::{
     Attrs, Buffer, Cache, Color, ContentType, CustomGlyph, Family, FontSystem, Metrics,
     RasterizeCustomGlyphRequest, RasterizedCustomGlyph, Resolution, Shaping, SwashCache, TextArea,
     TextAtlas, TextBounds, TextRenderer, Viewport,
 };
+use std::sync::Arc;
 use wgpu::{
     CommandEncoderDescriptor, CompositeAlphaMode, DeviceDescriptor, Instance, InstanceDescriptor,
     LoadOp, MultisampleState, Operations, PresentMode, RenderPassColorAttachment,
@@ -233,14 +232,11 @@ impl winit::application::ApplicationHandler for Application {
 
                 text_renderer
                     .prepare_with_custom(
-                        glyphon::PrepareContext::new(
-                            device,
-                            queue,
-                            font_system,
-                            atlas,
-                            viewport,
-                            swash_cache,
-                        ),
+                        device,
+                        queue,
+                        font_system,
+                        atlas,
+                        viewport,
                         [TextArea {
                             buffer: text_buffer,
                             left: 10.0,
@@ -296,6 +292,7 @@ impl winit::application::ApplicationHandler for Application {
                                 },
                             ],
                         }],
+                        swash_cache,
                         rasterize_svg,
                     )
                     .unwrap();

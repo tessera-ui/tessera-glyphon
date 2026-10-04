@@ -97,20 +97,19 @@ fn run_bench(ctx: &mut Criterion) {
                     })
                     .collect();
 
-                text_renderer
-                    .prepare(
-                        glyphon::PrepareContext::new(
+                hint::black_box(
+                    text_renderer
+                        .prepare(
                             &state.device,
                             &state.queue,
                             &mut font_system,
                             &mut atlas,
                             &viewport,
+                            text_areas,
                             &mut swash_cache,
-                        ),
-                        text_areas,
-                    )
-                    .unwrap();
-                hint::black_box(());
+                        )
+                        .unwrap(),
+                );
 
                 atlas.trim();
             })

@@ -1,9 +1,8 @@
-use std::sync::Arc;
-
 use glyphon::{
     Attrs, Buffer, Cache, Color, ColorMode, Family, FontSystem, Metrics, Resolution, Shaping,
     SwashCache, TextArea, TextAtlas, TextBounds, TextRenderer, Viewport, Weight,
 };
+use std::sync::Arc;
 use wgpu::{
     CommandEncoderDescriptor, CompositeAlphaMode, DeviceDescriptor, Instance, InstanceDescriptor,
     LoadOp, MultisampleState, Operations, PresentMode, RenderPassColorAttachment,
@@ -266,15 +265,13 @@ impl winit::application::ApplicationHandler for Application {
 
                 text_renderer
                     .prepare(
-                        glyphon::PrepareContext::new(
-                            device,
-                            queue,
-                            font_system,
-                            atlas,
-                            viewport,
-                            swash_cache,
-                        ),
+                        device,
+                        queue,
+                        font_system,
+                        atlas,
+                        viewport,
                         text_areas,
+                        swash_cache,
                     )
                     .unwrap();
 

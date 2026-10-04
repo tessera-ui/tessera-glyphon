@@ -1,5 +1,4 @@
-//! Glyphon provides a simple way to render 2D text with [wgpu], [cosmic-text]
-//! and [etagere].
+//! Glyphon provides a simple way to render 2D text with [wgpu], [cosmic-text] and [etagere].
 //!
 //! [wpgu]: https://github.com/gfx-rs/wgpu
 //! [cosmic-text]: https://github.com/pop-os/cosmic-text
@@ -12,18 +11,16 @@ mod text_atlas;
 mod text_render;
 mod viewport;
 
-use etagere::AllocId;
-use wgpu::{Device, Queue};
-
 pub use cache::Cache;
 pub use custom_glyph::{
     ContentType, CustomGlyph, CustomGlyphId, RasterizeCustomGlyphRequest, RasterizedCustomGlyph,
 };
 pub use error::{PrepareError, RenderError};
 pub use text_atlas::{ColorMode, TextAtlas};
-pub use text_render::{PrepareContext, TextRenderer};
+pub use text_render::TextRenderer;
 pub use viewport::Viewport;
 
+// Re-export all top-level types from `cosmic-text` for convenience.
 #[doc(no_inline)]
 pub use cosmic_text::{
     self, fontdb, Action, Affinity, Attrs, AttrsList, AttrsOwned, Buffer, BufferLine, CacheKey,
@@ -33,7 +30,8 @@ pub use cosmic_text::{
     Wrap,
 };
 
-// Re-export all top-level types from `cosmic-text` for convenience.
+use etagere::AllocId;
+use wgpu::{Device, Queue};
 
 pub(crate) enum GpuCacheStatus {
     InAtlas {
@@ -85,8 +83,7 @@ pub(crate) struct Params {
     _pad: [u32; 2],
 }
 
-/// Controls the visible area of the text. Any text outside of the visible area
-/// will be clipped.
+/// Controls the visible area of the text. Any text outside of the visible area will be clipped.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct TextBounds {
     /// The position of the left edge of the visible area.
@@ -122,8 +119,8 @@ pub struct TextArea<'a> {
     pub top: f32,
     /// The scaling to apply to the buffer.
     pub scale: f32,
-    /// The visible bounds of the text area. This is used to clip the text and
-    /// doesn't have to match the `left` and `top` values.
+    /// The visible bounds of the text area. This is used to clip the text and doesn't have to
+    /// match the `left` and `top` values.
     pub bounds: TextBounds,
     /// The default color of the text area.
     pub default_color: Color,
