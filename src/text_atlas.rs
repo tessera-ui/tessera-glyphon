@@ -1,9 +1,8 @@
-use std::{collections::HashSet, hash::BuildHasherDefault};
+use std::hash::BuildHasherDefault;
 
 use etagere::{size2, Allocation, BucketedAtlasAllocator};
 use lru::LruCache;
 use rustc_hash::FxHasher;
-use std::hash::BuildHasherDefault;
 use wgpu::{
     BindGroup, DepthStencilState, Device, Extent3d, MultisampleState, Origin3d, Queue,
     RenderPipeline, TexelCopyBufferLayout, TexelCopyTextureInfo, Texture, TextureAspect,
