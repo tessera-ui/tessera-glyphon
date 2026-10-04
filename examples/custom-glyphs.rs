@@ -8,8 +8,8 @@ use glyphon::{
 use wgpu::{
     CommandEncoderDescriptor, CompositeAlphaMode, DeviceDescriptor, Instance, InstanceDescriptor,
     LoadOp, MultisampleState, Operations, PresentMode, RenderPassColorAttachment,
-    RenderPassDescriptor, RequestAdapterOptions, SurfaceConfiguration, TextureFormat,
-    TextureUsages, TextureViewDescriptor,
+    RenderPassDescriptor, RequestAdapterOptions, SurfaceColorSpace, SurfaceConfiguration,
+    TextureFormat, TextureUsages, TextureViewDescriptor,
 };
 use winit::{
     dpi::LogicalSize,
@@ -79,6 +79,7 @@ impl WindowState {
             alpha_mode: CompositeAlphaMode::Opaque,
             view_formats: vec![],
             desired_maximum_frame_latency: 2,
+            color_space: SurfaceColorSpace::Auto,
         };
         surface.configure(&device, &surface_config);
 
@@ -96,12 +97,10 @@ impl WindowState {
         let physical_height = (physical_size.height as f64 * scale_factor) as f32;
 
         text_buffer.set_size(
-            &mut font_system,
             Some(physical_width),
             Some(physical_height),
         );
         text_buffer.set_text(
-            &mut font_system,
             "SVG icons!     --->\n\nThe icons below should be partially clipped.",
             &Attrs::new().family(Family::SansSerif),
             Shaping::Advanced,
@@ -353,7 +352,7 @@ impl winit::application::ApplicationHandler for Application {
                 }
 
                 queue.submit(Some(encoder.finish()));
-                frame.present();
+                queue.present(frame);
 
                 atlas.trim();
             }

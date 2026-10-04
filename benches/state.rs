@@ -39,7 +39,7 @@ impl State {
 
         let (device, queue) = block_on(adapter.request_device(&wgpu::DeviceDescriptor {
             label: Some("Benchmark Device"),
-            required_features: adapter.features(),
+            required_features: wgpu::Features::empty(),
             required_limits: adapter.limits(),
             memory_hints: wgpu::MemoryHints::Performance,
             ..Default::default()

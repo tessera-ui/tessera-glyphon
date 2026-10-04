@@ -7,8 +7,8 @@ use glyphon::{
 use wgpu::{
     CommandEncoderDescriptor, CompositeAlphaMode, DeviceDescriptor, Instance, InstanceDescriptor,
     LoadOp, MultisampleState, Operations, PresentMode, RenderPassColorAttachment,
-    RenderPassDescriptor, RequestAdapterOptions, SurfaceConfiguration, TextureFormat,
-    TextureUsages, TextureViewDescriptor,
+    RenderPassDescriptor, RequestAdapterOptions, SurfaceColorSpace, SurfaceConfiguration,
+    TextureFormat, TextureUsages, TextureViewDescriptor,
 };
 use winit::{
     dpi::{LogicalSize, PhysicalSize},
@@ -94,6 +94,7 @@ impl WindowState {
             alpha_mode: CompositeAlphaMode::Opaque,
             view_formats: vec![],
             desired_maximum_frame_latency: 2,
+            color_space: SurfaceColorSpace::Auto,
         };
         surface.configure(&device, &surface_config);
 
@@ -119,10 +120,9 @@ impl WindowState {
                 let mut text_buffer =
                     Buffer::new(&mut font_system, Metrics::relative(s, LINE_HEIGHT));
 
-                text_buffer.set_size(&mut font_system, Some(logical_width - 20.0), None);
+                text_buffer.set_size(Some(logical_width - 20.0), None);
 
                 text_buffer.set_text(
-                    &mut font_system,
                     &format!("size {s}: {TEXT}"),
                     &attrs,
                     shaping,
@@ -215,7 +215,7 @@ impl winit::application::ApplicationHandler for Application {
                 let logical_width = size.width as f32 / *scale_factor;
 
                 for b in buffers.iter_mut() {
-                    b.set_size(font_system, Some(logical_width - 20.0), None);
+                    b.set_size(Some(logical_width - 20.0), None);
                     b.shape_until_scroll(font_system, false);
                 }
             }
@@ -325,7 +325,7 @@ impl winit::application::ApplicationHandler for Application {
                 }
 
                 queue.submit(Some(encoder.finish()));
-                frame.present();
+                queue.present(frame);
 
                 atlas.trim();
             }
